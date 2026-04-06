@@ -172,7 +172,7 @@ const SCENARIOS = [
   { id: 'custom', type: 'Custom', name: 'Build Your Own Scenario', footTraffic: 100000, conversion: 2.0, avgTicket: 18, venueShare: 10 },
 ];
 
-const FIXED_OPEX = { tMobile: 10, reyeah: 5, nayax: 10 };
+const FIXED_OPEX = { tMobile: 10, maintenance: 5, nayax: 10 };
 const GROSS_MARGIN = 0.60;
 const CL_SPLIT = 0.25;
 
@@ -212,7 +212,7 @@ function calc() {
   const cogs = revMonth * (state.cogsPercent / 100);
   const gp = revMonth - cogs;
   const venueRev = revMonth * (state.venueShare / 100);
-  const fixedOpex = FIXED_OPEX.tMobile + FIXED_OPEX.reyeah + FIXED_OPEX.nayax;
+  const fixedOpex = FIXED_OPEX.tMobile + FIXED_OPEX.maintenance + FIXED_OPEX.nayax;
   const totalOpex = venueRev + fixedOpex;
   const netProfit = gp - totalOpex;
   const clEarnings = netProfit * CL_SPLIT;
@@ -258,7 +258,7 @@ function render() {
         <div class="assumption-item"><strong>COGS:</strong> 40% of revenue (default) — covers product cost loaded into the machine.</div>
         <div class="assumption-item"><strong>Venue Rev Share:</strong> 10% of gross revenue paid to the venue for hosting the machine.</div>
         <div class="assumption-item"><strong>T-Mobile:</strong> $10/mo fixed — cellular connectivity per machine.</div>
-        <div class="assumption-item"><strong>Reyeah:</strong> $5/mo fixed — machine maintenance software.</div>
+        <div class="assumption-item"><strong>Machine Maintenance:</strong> $5/mo fixed — machine maintenance software.</div>
         <div class="assumption-item"><strong>Nayax:</strong> $10/mo fixed — cashless payment processing hardware.</div>
         <div class="assumption-item"><strong>City Launcher Split:</strong> You earn 25% of net profit; Pod Plug retains 75%.</div>
         <div class="assumption-item"><strong>Conversion Rate:</strong> % of annual foot traffic that makes a purchase — varies by venue type (1%–2.5%).</div>
@@ -335,8 +335,8 @@ function render() {
         <span class="value">-$${FIXED_OPEX.tMobile}</span>
       </div>
       <div class="pl-row negative">
-        <span class="label indent">Reyeah (Machine Maintenance)</span>
-        <span class="value">-$${FIXED_OPEX.reyeah}</span>
+        <span class="label indent">Machine Maintenance</span>
+        <span class="value">-$${FIXED_OPEX.maintenance}</span>
       </div>
       <div class="pl-row negative">
         <span class="label indent">Nayax (Payment Processing)</span>
