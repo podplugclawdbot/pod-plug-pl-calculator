@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pod Plug - City Launcher P&L Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0a0a0f;
+    color: #e8e8ec;
+    min-height: 100vh;
+    padding: 32px 20px;
+  }
+
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .logo-bar {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+  .logo-bar .dot { width: 10px; height: 10px; border-radius: 50%; background: #7c5cfc; }
+  .logo-bar span { font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #7c5cfc; }
+
+  h1 {
+    font-size: 28px; font-weight: 700; margin-bottom: 6px;
+    background: linear-gradient(135deg, #fff 40%, #7c5cfc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: #888; font-size: 14px; margin-bottom: 36px; }
+
+  /* Scenario cards */
+  .scenarios {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin-bottom: 36px;
+  }
+  .scenario-card {
+    background: #14141c; border: 1px solid #222; border-radius: 12px;
+    padding: 16px 18px; cursor: pointer; transition: all 0.2s;
+  }
+  .scenario-card:hover { border-color: #7c5cfc44; }
+  .scenario-card.active { border-color: #7c5cfc; background: #17152a; }
+  .scenario-card .venue-type { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #7c5cfc; margin-bottom: 4px; font-weight: 600; }
+  .scenario-card .venue-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .scenario-card .meta { display: flex; gap: 16px; font-size: 12px; color: #777; }
+
+  /* Input section */
+  .input-section {
+    background: #14141c; border: 1px solid #222; border-radius: 14px;
+    padding: 24px; margin-bottom: 28px;
+  }
+  .input-section h2 { font-size: 15px; font-weight: 600; margin-bottom: 18px; color: #bbb; }
+
+  .input-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .input-group { display: flex; flex-direction: column; gap: 5px; }
+  .input-group label { font-size: 12px; color: #888; font-weight: 500; }
+  .input-group input, .input-group select {
+    background: #0d0d14; border: 1px solid #2a2a35; border-radius: 8px;
+    padding: 10px 12px; color: #e8e8ec; font-size: 14px; font-family: 'Space Mono', monospace;
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-group input:focus, .input-group select:focus { border-color: #7c5cfc; }
+  .input-group select option { background: #14141c; }
+
+  /* P&L output */
+  .pl-section {
+    background: #14141c; border: 1px solid #222; border-radius: 14px;
+    padding: 24px; margin-bottom: 28px;
+  }
+  .pl-section h2 { font-size: 15px; font-weight: 600; margin-bottom: 18px; color: #bbb; }
+
+  .pl-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid #1a1a24;
+    font-size: 14px;
+  }
+  .pl-row:last-child { border-bottom: none; }
+  .pl-row .label { color: #999; }
+  .pl-row .value { font-family: 'Space Mono', monospace; font-weight: 600; }
+  .pl-row .pct { font-size: 11px; color: #666; margin-left: 8px; }
+  .pl-row.subtotal { border-top: 1px solid #2a2a35; padding-top: 14px; margin-top: 4px; }
+  .pl-row.subtotal .label, .pl-row.subtotal .value { color: #ccc; font-weight: 600; }
+  .pl-row.highlight { border-top: 2px solid #7c5cfc44; padding-top: 14px; margin-top: 4px; }
+  .pl-row.highlight .label { color: #7c5cfc; font-weight: 700; }
+  .pl-row.highlight .value { color: #7c5cfc; font-weight: 700; font-size: 16px; }
+  .pl-row.negative .value { color: #ff6b6b; }
+  .pl-row .indent { padding-left: 16px; font-size: 13px; color: #777; }
+
+  /* Scale section */
+  .scale-section {
+    background: linear-gradient(135deg, #17152a 0%, #14141c 100%);
+    border: 1px solid #7c5cfc33; border-radius: 14px;
+    padding: 24px; margin-bottom: 28px;
+  }
+  .scale-section h2 { font-size: 15px; font-weight: 600; margin-bottom: 18px; color: #7c5cfc; }
+  .scale-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .scale-card {
+    text-align: center; padding: 14px 8px;
+    background: #0d0d1488; border-radius: 10px;
+  }
+  .scale-card .machines { font-size: 22px; font-weight: 700; color: #7c5cfc; font-family: 'Space Mono', monospace; }
+  .scale-card .machines-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 6px; }
+  .scale-card .earnings { font-size: 16px; font-weight: 700; color: #fff; font-family: 'Space Mono', monospace; margin-top: 4px; }
+  .scale-card .hours { font-size: 11px; color: #777; margin-top: 2px; }
+
+  .footer-note {
+    text-align: center; font-size: 11px; color: #555; margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    .scenarios { grid-template-columns: 1fr; }
+    .input-grid { grid-template-columns: 1fr; }
+    .scale-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+const SCENARIOS = [
+  { id: 'casino', type: 'Nightlife', name: 'Casino / Nightclub Inside Casino', footTraffic: 150000, conversion: 1.5, avgTicket: 18, venueShare: 10 },
+  { id: 'nightclub', type: 'Nightlife', name: 'High-Volume Nightclub', footTraffic: 120000, conversion: 2.0, avgTicket: 22, venueShare: 10 },
+  { id: 'bar', type: 'Nightlife', name: 'Bar (100K+ Annual Traffic)', footTraffic: 100000, conversion: 2.0, avgTicket: 22, venueShare: 10 },
+  { id: 'strip', type: 'Nightlife', name: 'Strip Club', footTraffic: 100000, conversion: 2.5, avgTicket: 22, venueShare: 10 },
+  { id: 'bowling', type: 'TCG', name: 'Bowling Alley', footTraffic: 200000, conversion: 1.0, avgTicket: 15, venueShare: 10 },
+  { id: 'arcade', type: 'TCG', name: 'Arcade / FEC', footTraffic: 80000, conversion: 1.5, avgTicket: 15, venueShare: 10 },
+  { id: 'trampoline', type: 'TCG', name: 'Trampoline Park', footTraffic: 150000, conversion: 1.0, avgTicket: 15, venueShare: 10 },
+  { id: 'custom', type: 'Custom', name: 'Build Your Own Scenario', footTraffic: 100000, conversion: 2.0, avgTicket: 18, venueShare: 10 },
+];
+
+const FIXED_OPEX = { tMobile: 10, reyeah: 5, nayax: 10 };
+const GROSS_MARGIN = 0.60;
+const CL_SPLIT = 0.25;
+
+let state = {
+  selectedId: 'casino',
+  footTraffic: 150000,
+  conversion: 1.5,
+  avgTicket: 18,
+  venueShare: 10,
+  cogsPercent: 40,
+};
+
+function selectScenario(id) {
+  const s = SCENARIOS.find(x => x.id === id);
+  state.selectedId = id;
+  if (id !== 'custom') {
+    state.footTraffic = s.footTraffic;
+    state.conversion = s.conversion;
+    state.avgTicket = s.avgTicket;
+    state.venueShare = s.venueShare;
+    state.cogsPercent = 40;
+  }
+  render();
+}
+
+function updateField(field, val) {
+  state[field] = parseFloat(val) || 0;
+  state.selectedId = 'custom';
+  render();
+}
+
+function calc() {
+  const txYear = state.footTraffic * (state.conversion / 100);
+  const txMonth = txYear / 12;
+  const revMonth = txMonth * state.avgTicket;
+  const revYear = revMonth * 12;
+  const cogs = revMonth * (state.cogsPercent / 100);
+  const gp = revMonth - cogs;
+  const venueRev = revMonth * (state.venueShare / 100);
+  const fixedOpex = FIXED_OPEX.tMobile + FIXED_OPEX.reyeah + FIXED_OPEX.nayax;
+  const totalOpex = venueRev + fixedOpex;
+  const netProfit = gp - totalOpex;
+  const clEarnings = netProfit * CL_SPLIT;
+  const ppEarnings = netProfit - clEarnings;
+  return { txMonth, revMonth, revYear, cogs, gp, venueRev, fixedOpex, totalOpex, netProfit, clEarnings, ppEarnings };
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtD(n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function pct(n, base) { return base > 0 ? ((n / base) * 100).toFixed(1) + '%' : '0%'; }
+
+function render() {
+  const c = calc();
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="logo-bar"><div class="dot"></div><span>Pod Plug</span></div>
+    <h1>City Launcher P&L Calculator</h1>
+    <p class="subtitle">Select a venue scenario or input your own numbers to see projected monthly earnings.</p>
+
+    <div class="scenarios">
+      ${SCENARIOS.map(s => `
+        <div class="scenario-card ${state.selectedId === s.id ? 'active' : ''}" onclick="selectScenario('${s.id}')">
+          <div class="venue-type">${s.type}</div>
+          <div class="venue-name">${s.name}</div>
+          ${s.id !== 'custom' ? `<div class="meta"><span>${(s.footTraffic/1000).toFixed(0)}K traffic/yr</span><span>${s.conversion}% conv</span><span>$${s.avgTicket} avg</span></div>` : `<div class="meta"><span>Enter your own assumptions</span></div>`}
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="input-section">
+      <h2>Assumptions (edit any field)</h2>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Annual Foot Traffic</label>
+          <input type="number" value="${state.footTraffic}" oninput="updateField('footTraffic', this.value)">
+        </div>
+        <div class="input-group">
+          <label>Conversion Rate (%)</label>
+          <input type="number" step="0.1" value="${state.conversion}" oninput="updateField('conversion', this.value)">
+        </div>
+        <div class="input-group">
+          <label>Average Ticket ($)</label>
+          <input type="number" step="0.5" value="${state.avgTicket}" oninput="updateField('avgTicket', this.value)">
+        </div>
+        <div class="input-group">
+          <label>Venue Revenue Share (%)</label>
+          <input type="number" step="1" value="${state.venueShare}" oninput="updateField('venueShare', this.value)">
+        </div>
+        <div class="input-group">
+          <label>COGS (% of Revenue)</label>
+          <input type="number" step="1" value="${state.cogsPercent}" oninput="updateField('cogsPercent', this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="pl-section">
+      <h2>Monthly P&L Per Machine</h2>
+
+      <div class="pl-row">
+        <span class="label">Monthly Transactions</span>
+        <span class="value">${Math.round(c.txMonth).toLocaleString()}</span>
+      </div>
+      <div class="pl-row">
+        <span class="label">Gross Revenue / Month</span>
+        <span class="value">${fmt(c.revMonth)}<span class="pct">100%</span></span>
+      </div>
+      <div class="pl-row negative">
+        <span class="label">Cost of Goods Sold (${state.cogsPercent}%)</span>
+        <span class="value">-${fmt(c.cogs)}<span class="pct">${pct(c.cogs, c.revMonth)}</span></span>
+      </div>
+      <div class="pl-row subtotal">
+        <span class="label">Gross Profit</span>
+        <span class="value">${fmt(c.gp)}<span class="pct">${pct(c.gp, c.revMonth)}</span></span>
+      </div>
+
+      <div class="pl-row" style="margin-top:12px;">
+        <span class="label" style="font-weight:600;color:#bbb;">Operating Expenses</span>
+        <span class="value"></span>
+      </div>
+      <div class="pl-row negative">
+        <span class="label indent">Venue Rev Share (${state.venueShare}%)</span>
+        <span class="value">-${fmt(c.venueRev)}</span>
+      </div>
+      <div class="pl-row negative">
+        <span class="label indent">T-Mobile (Cellular)</span>
+        <span class="value">-$${FIXED_OPEX.tMobile}</span>
+      </div>
+      <div class="pl-row negative">
+        <span class="label indent">Reyeah (Machine Maintenance)</span>
+        <span class="value">-$${FIXED_OPEX.reyeah}</span>
+      </div>
+      <div class="pl-row negative">
+        <span class="label indent">Nayax (Payment Processing)</span>
+        <span class="value">-$${FIXED_OPEX.nayax}</span>
+      </div>
+      <div class="pl-row subtotal negative">
+        <span class="label">Total Operating Expenses</span>
+        <span class="value">-${fmt(c.totalOpex)}<span class="pct">${pct(c.totalOpex, c.revMonth)}</span></span>
+      </div>
+
+      <div class="pl-row subtotal">
+        <span class="label">Net Profit</span>
+        <span class="value">${fmt(c.netProfit)}<span class="pct">${pct(c.netProfit, c.revMonth)}</span></span>
+      </div>
+
+      <div class="pl-row highlight">
+        <span class="label">Your Cut (25% of Net Profit)</span>
+        <span class="value">${fmt(c.clEarnings)}/mo</span>
+      </div>
+      <div class="pl-row">
+        <span class="label">Pod Plug (75% of Net Profit)</span>
+        <span class="value">${fmt(c.ppEarnings)}/mo</span>
+      </div>
+    </div>
+
+    <div class="scale-section">
+      <h2>Scale: What does a full portfolio look like?</h2>
+      <div class="scale-grid">
+        ${[5, 8, 10, 15].map(n => `
+          <div class="scale-card">
+            <div class="machines-label">Machines</div>
+            <div class="machines">${n}</div>
+            <div class="earnings">${fmt(c.clEarnings * n)}</div>
+            <div class="hours">~${n} hrs/wk</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="footer-note">
+      All projections are estimates based on industry conversion rates and internal data.<br>
+      Actual results will vary based on venue quality, location, and market conditions.<br>
+      Pod Plug City Launcher Program &copy; 2026
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
