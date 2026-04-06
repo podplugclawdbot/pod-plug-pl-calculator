@@ -111,6 +111,40 @@
   .scale-card .earnings { font-size: 16px; font-weight: 700; color: #fff; font-family: 'Space Mono', monospace; margin-top: 4px; }
   .scale-card .hours { font-size: 11px; color: #777; margin-top: 2px; }
 
+  /* How it works section */
+  .how-section {
+    background: #14141c; border: 1px solid #222; border-radius: 14px;
+    padding: 24px; margin-bottom: 28px;
+  }
+  .how-section h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #bbb; }
+  .how-section p { font-size: 13px; color: #999; line-height: 1.7; margin-bottom: 12px; }
+  .how-section p:last-child { margin-bottom: 0; }
+  .how-steps {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-bottom: 16px;
+  }
+  .how-step {
+    background: #0d0d14; border-radius: 10px; padding: 14px;
+  }
+  .how-step .step-num {
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+    color: #7c5cfc; margin-bottom: 6px;
+  }
+  .how-step .step-title { font-size: 13px; font-weight: 600; color: #ddd; margin-bottom: 4px; }
+  .how-step .step-desc { font-size: 12px; color: #777; line-height: 1.5; }
+
+  .assumptions-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px;
+    margin-top: 14px;
+  }
+  .assumption-item { font-size: 12px; color: #888; line-height: 1.5; padding: 6px 0; border-bottom: 1px solid #1a1a24; }
+  .assumption-item strong { color: #ccc; font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .how-steps { grid-template-columns: 1fr; }
+    .assumptions-grid { grid-template-columns: 1fr; }
+  }
+
   .footer-note {
     text-align: center; font-size: 11px; color: #555; margin-top: 24px;
     line-height: 1.6;
@@ -197,6 +231,40 @@ function render() {
     <div class="logo-bar"><div class="dot"></div><span>Pod Plug</span></div>
     <h1>City Launcher P&L Calculator</h1>
     <p class="subtitle">Select a venue scenario or input your own numbers to see projected monthly earnings.</p>
+
+    <div class="how-section">
+      <h2>How This Calculator Works</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num">01</div>
+          <div class="step-title">Pick a Venue Type</div>
+          <div class="step-desc">Select a pre-built scenario below that matches your target location, or choose "Build Your Own" to enter custom numbers.</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">02</div>
+          <div class="step-title">Adjust Assumptions</div>
+          <div class="step-desc">Fine-tune foot traffic, conversion rate, average ticket size, venue share, and COGS. Editing any field switches you to custom mode.</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">03</div>
+          <div class="step-title">Read Your P&L</div>
+          <div class="step-desc">See your projected monthly revenue, expenses, net profit, and your 25% City Launcher cut — per machine and at scale.</div>
+        </div>
+      </div>
+
+      <h2>Key Assumptions</h2>
+      <p>All projections are per-machine estimates. The model uses the following fixed and default values:</p>
+      <div class="assumptions-grid">
+        <div class="assumption-item"><strong>COGS:</strong> 40% of revenue (default) — covers product cost loaded into the machine.</div>
+        <div class="assumption-item"><strong>Venue Rev Share:</strong> 10% of gross revenue paid to the venue for hosting the machine.</div>
+        <div class="assumption-item"><strong>T-Mobile:</strong> $10/mo fixed — cellular connectivity per machine.</div>
+        <div class="assumption-item"><strong>Reyeah:</strong> $5/mo fixed — machine maintenance software.</div>
+        <div class="assumption-item"><strong>Nayax:</strong> $10/mo fixed — cashless payment processing hardware.</div>
+        <div class="assumption-item"><strong>City Launcher Split:</strong> You earn 25% of net profit; Pod Plug retains 75%.</div>
+        <div class="assumption-item"><strong>Conversion Rate:</strong> % of annual foot traffic that makes a purchase — varies by venue type (1%–2.5%).</div>
+        <div class="assumption-item"><strong>Scale Hours:</strong> Estimated ~1 hr/wk per machine for restocking and maintenance.</div>
+      </div>
+    </div>
 
     <div class="scenarios">
       ${SCENARIOS.map(s => `
@@ -287,10 +355,6 @@ function render() {
       <div class="pl-row highlight">
         <span class="label">Your Cut (25% of Net Profit)</span>
         <span class="value">${fmt(c.clEarnings)}/mo</span>
-      </div>
-      <div class="pl-row">
-        <span class="label">Pod Plug (75% of Net Profit)</span>
-        <span class="value">${fmt(c.ppEarnings)}/mo</span>
       </div>
     </div>
 
